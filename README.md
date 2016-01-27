@@ -20,48 +20,29 @@ Auto  saves  the output pdf file after exit. For data file filename.*, it saves 
 
 Provide plot range in the format `[xmin:xmax]` `[ymin:ymax]`, including the square braces. Using  `[:]` for `[xmin:xmax]` will autoscale the x-axis and similar for y-axis. Thus, a combination of `[:]` and numeric entries may be used to  selectively  autoscale or manually scale one or the other axis. Simply pressing ENTER without entering any plot range or a wrong  entry will automatically assume autoscale for both axes. Note, -range option is intended for quick plot range changes, and it does not allow to save  the output file and cannot be used along with -save option. If it is desired to save the output PDF, use -save option, which automatically  allows  to manually enter the plot range.
 
-`-absy -range|-save`
+`-absy -range|-save` Plots abs(y) vs x.
 
-Plots abs(y) vs x.
+`-absx -range|-save` Plots y vs abs(x).
 
-`-absx -range|-save`
+`-absxy -range|-save` Plots abs(y) vs abs(x)
 
-Plots y vs abs(x).
+`-logy -range|-save` Plots abs(y) vs x with logarithmic scaling for y-axis.
 
-`-absxy -range|-save`
+ `-logx -range|-save` Plots y vs abs(x) with logarithmic scaling for x-axis.
 
-Plots abs(y) vs abs(x)
-
-`-logy -range|-save`
-
-Plots abs(y) vs x with logarithmic scaling for y-axis.
-
- `-logx -range|-save`
-
-Plots y vs abs(x) with logarithmic scaling for x-axis.
-
-`-logxy -range|-save`
-
-Plots abs(y) vs abs(x) with logarithmic scaling for both x and y axes.
+`-logxy -range|-save` Plots abs(y) vs abs(x) with logarithmic scaling for both x and y axes.
 
 
 `-expr -range|-save`
 
 Plots  expr(y) vs x, where expr(y) is any mathematical expression involving y data. For example, if the user wants to plot the square of  y  data values vs x, at the command prompt, enter y**2. This mathematical expression will be applied to all y data  columns.  All  standard  mathematical expressions available in gnuplot can be used.
 
-`-exprlogy -range|-save`
+`-exprlogy -range|-save` Plots absolute value of expr(y) vs x with logarithmic scaling for y-axis.
 
-Plots absolute value of expr(y) vs x with logarithmic scaling for y-axis.
-
-`-exprlogx -range|-save`
-
-Plots expr(y) vs abs(x) with logarithmic scaling for x-axis.
+`-exprlogx -range|-save` Plots expr(y) vs abs(x) with logarithmic scaling for x-axis.
 
 `-exprlogxy -range|-save`
-
 Plots  absolute  value  of expr(y) vs abs(x) with logarithmic scaling for both x and y axes.
-
-
 
 ### FILES
 **gplot** looks for files in the working directory. Files with absolute or relative pathnames  are not admitted so far. If no filename or a non-existing filename is provided, **gplot** prompts an error message. A typical data file should have the following format:
