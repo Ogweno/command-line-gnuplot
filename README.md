@@ -1,15 +1,15 @@
 ### NAME
-       **gplot** - a command line plotting tool for text data files.
+**gplot** - a command line plotting tool for text data files.
 
 ### SYNOPSIS
-       **gplot** [ options ] [ filename ]
+**gplot** [ options ] [ filename ]
 
 ### DESCRIPTION
-       gplot  is a command-line plotting tool which uses gnuplot for plotting text data files of the type X,Y1,Y2,...Yn. The data has to be in the form of separate columns,  and  not comma separated. Any comment line has to begin with '#'. It only plots the first nine Y columns for n>9 with different lines. It is not for scatter  plots. The output plot is a PDF file.  gplot uses evince to display the PDF file. The default option is designed for quick plotting so as to get a feel for the  data  file, and as such, the output PDF file is automatically deleted after exiting the command. If it is desired to save the file,  use  the  -save  option instead.
+gplot  is a command-line plotting tool which uses gnuplot for plotting text data files of the type X,Y1,Y2,...Yn. The data has to be in the form of separate columns,  and  not comma separated. Any comment line has to begin with '#'. It only plots the first nine Y columns for n>9 with different lines. It is not for scatter  plots. The output plot is a PDF file.  gplot uses evince to display the PDF file. The default option is designed for quick plotting so as to get a feel for the  data  file, and as such, the output PDF file is automatically deleted after exiting the command. If it is desired to save the file,  use  the  -save  option instead.
 
 ### OPTIONS
-       `-save` filename
-              auto  saves  the output pdf file after exit. For data file filename.*, it saves the PDF file as filename.pdf. It uses the option -range and prompts for  plot  range.  In  addition,  it provides the option to smooth y data  using either csplines or bezier, enter axes labels (in  gnuplot  format), individual  plot  titles  (in  gnuplot format) and the option to move the legend to the top left (tl), top right (tr), left bottom (lb)  and  right bottom  (rb) positions. The user can skip all these options by pressing ENTER after every prompt, in which case default options will be used.
+`-save` filename
+auto  saves  the output pdf file after exit. For data file filename.*, it saves the PDF file as filename.pdf. It uses the option -range and prompts for  plot  range.  In  addition,  it provides the option to smooth y data  using either csplines or bezier, enter axes labels (in  gnuplot  format), individual  plot  titles  (in  gnuplot format) and the option to move the legend to the top left (tl), top right (tr), left bottom (lb)  and  right bottom  (rb) positions. The user can skip all these options by pressing ENTER after every prompt, in which case default options will be used.
 
 
 
