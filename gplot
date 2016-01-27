@@ -698,12 +698,12 @@ mv $filepdf ..
 cd ..
 if [[ $saveswitch != "save" ]]
 then
-    okular $filepdf 2>/dev/null 
+    evince $filepdf 2>/dev/null 
     rm $filepdf
     else
     pdfcrop $filepdf
     mv ${file%.pdf}-crop.pdf $filepdf
-    okular $filepdf 2>/dev/null 
+    evince $filepdf 2>/dev/null 
 fi
 rm -r tmp
 
