@@ -78,5 +78,6 @@ Plots  absolute  value  of expr(y) vs abs(x) with logarithmic scaling for both x
 
 If by  mistake, a  file  not  in  the  `X, Y0, Y1,...` format is used and the file exists, `evince` prompts an error message. The file can also contain comment lines starting with `#`, which is a standard gnuplot feature.
 
+### Installation
 
-
+The `gplot` command utility can be downloaded and moved to `/usr/local/bin` using `sudo mv gplot /usr/local/bin`. There is also a man file for gplot, the file named `gplot.1`. This can be moved to `/usr/local/man/man1/` in ubuntu to make it available as a man page, and can be accessed using `man gplot`.
