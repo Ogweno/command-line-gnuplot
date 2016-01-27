@@ -1,0 +1,710 @@
+#!/bin/bash
+
+xr=[:]
+yr=[:]
+
+lmargin=6.0
+rmargin=4.5
+tmargin=2.2
+bmargin=2.2
+
+xlabel=""
+ylabel=""
+y2label=""
+xoffset="0,0.5"
+yoffset="1.5"
+
+lnx=""
+lny=""
+xygrid=""
+
+x="(\$1)"
+
+i=1
+while [ $i -le 9 ]
+do
+j=$(( i+1 ))
+Y[$i]="(\$$j)"
+i=$j
+done
+
+i=1
+while [ $i -le 9 ]
+do
+ylegend[$i]="notitle"
+j=$(( i+1 ))
+i=$j
+done
+
+legendposition=""
+
+linetypestring1="set label '{/Times-Roman=25 line types:}' at screen 0.19,0.825"
+linetypestring2="set label '{/Times-Roman=25 (S/D/DD)  >}' at screen 0.355,0.825 tc ls 2"
+linetypestring3="set label '{/Times-Roman=25 (S/D/DD)  >}' at screen 0.55,0.825 tc ls 5"
+linetypestring4="set label '{/Times-Roman=25 (S/D/DD)}' at screen 0.750,0.825 tc ls 8"
+
+smooth=""
+
+while [[ $1 != -* ]]
+do
+    if [[ $# -ge 1 ]] && [ -f "$1" ]
+    then
+	filein=$1
+	file=${filein%.*}
+	fileout=$file.eps
+	break
+    elif [[ $# -lt 1 ]]
+    then
+	echo "gplot: missing data file name"
+	exit
+    else
+	echo "gplot: data file $1 does not exist"
+	exit
+    fi
+done
+
+while [[ $1 = -* ]]
+do 
+
+if [[ $3 = -* ]]
+    then
+	echo "gplot $1 $2 $3: invalid options, only two options allowed"
+	exit
+fi
+    case $1 in
+
+	-save)
+	    saveswitch="save"
+	    if [ $# -ge 2 ] && [ -f "$2" ]
+	    then
+		lmargin=7.5
+		rmargin=4.8
+		tmargin=1.8
+		bmargin=3.2
+		
+
+		filein=$2
+		file=${filein%.*}
+		fileout=$file.eps
+
+		echo -n "gplot: enter range as [xmin:xmax] [ymin:ymax], use [:] or press enter to autoscale both xy: "
+		read xr yr
+
+		echo -n "gplot: smooth data, enter c for csplines, or b for bezier: "
+		read smooth
+		if [[ $smooth = c* ]]
+		then
+		    smooth="smooth csplines"
+		elif [[ $smooth = b* ]]
+		then
+		    smooth="smooth bezier"
+		else
+		    smooth=""
+		fi
+		
+		echo -n "gplot: enter '{xlabel}' '{ylabel}' '{y2label}': "
+		read xlabel ylabel y2label 
+		echo -n "gplot: enter xoffset yoffset -- 'x1,x2' 'y1,y2': "
+		read xoffset yoffset
+		
+		
+		echo -n "gplot: enter '{y1title}' '{y2title}' ... '{yntitle}': "
+		read ytitle1 ytitle2 ytitle3 ytitle4 ytitle5 ytitle6 ytitle7 ytitle8 ytitle9 
+		ytitle=("$ytitle1" "$ytitle2" "$ytitle3" "$ytitle4" "$ytitle5" "$ytitle6" "$ytitle7" "$ytitle8" "$ytitle9")
+		if [[ ${ytitle[0]} = "" ]]
+		    then
+		    linetypestring1="set label 'line types:' at screen 0.21,0.845"
+		    linetypestring2="set label '(S/D/DD)  >' at screen 0.375,0.845 tc ls 2"
+		    linetypestring3="set label '(S/D/DD)  >' at screen 0.57,0.845 tc ls 5"
+		    linetypestring4="set label '(S/D/DD)' at screen 0.770,0.845 tc ls 8"
+		    else
+		    i=1
+		    while [ $i -le 9 ]
+		    do
+			if [[ ${ytitle[$((i-1))]} != "" ]]
+			then
+			    linetypestring1=""
+			    linetypestring2=""
+			    linetypestring3=""
+			    linetypestring4=""
+			    ylegend[$i]="title ${ytitle[$((i-1))]}"
+			    j=$(( i+1 ))
+			    i=$j
+			else
+			    ylegend[$i]="notitle"
+			    j=$(( i+1 ))
+			    i=$j
+			fi
+		    done
+		fi
+
+		echo -n "gplot: legend position tl/tr/lb/rb: "
+		read key
+		while [[ $key != "" ]]
+		do
+		    if [[ $key = tl ]]
+		    then
+			key="top left"
+			break
+		    elif [[ $key = tr ]]
+		    then
+			key="top right"
+			break
+		    elif [[ $key = lb ]]
+		    then
+			key="left bottom"
+			break
+		    elif [[ $key = rb ]]
+		    then
+			key="right bottom"
+			break
+		    else
+			key=""
+			break
+		    fi
+		done
+		legendposition=$key
+		
+		if [[ $xoffset = "" ]]
+		    then
+		    xoffset=0,0.5
+		fi
+		if [[ $yoffset = "" ]]
+		    then
+		    yoffset=1.5
+		fi
+		break
+	    elif [[ $# -lt 2 ]]
+	    then
+		echo "gplot: missing data file name"
+		exit
+	    else
+		echo "gplot: data file $2 does not exist"
+		exit
+	    fi
+	    ;;
+
+	-range)
+	    if [ $# -ge 2 ] && [ -f "$2" ]
+	    then
+		filein=$2
+		file=${filein%.*}
+		fileout=$file.eps
+		echo -n "gplot: enter range as [xmin:xmax] [ymin:ymax], use [:] or press enter to autoscale both xy: "
+		read xr yr
+		break
+	    elif [[ $# -lt 2 ]]
+	    then
+		echo "gplot: missing data file name"
+		exit
+	    else
+		echo "gplot: data file $2 does not exist"
+		exit
+	    fi
+	    ;;
+
+	-absy)  
+	    i=1
+	    while [ $i -le 9 ]
+	    do
+		j=$(( i+1 ))
+		Y[$i]="(abs(\$$j))"
+		i=$j
+	    done
+	    ;;
+	    
+
+	-absx)  
+	    x="(abs(\$1))" 
+	    ;;
+
+        -absxy)
+	    x="(abs(\$1))"
+	    i=1
+	    while [ $i -le 9 ]
+	    do
+		j=$(( i+1 ))
+		Y[$i]="(abs(\$$j))"
+		i=$j
+	    done
+	    ;;
+
+	-logy) 
+	    lny="set logscale y"
+	    xygrid="set grid ytic xtic"
+	    i=1
+	    while [ $i -le 9 ]
+	    do
+		j=$(( i+1 ))
+		Y[$i]="(abs(\$$j))"
+		i=$j
+	    done
+	    ;;
+	
+	-logx)
+	    lnx="set logscale x"
+	    x="(abs(\$1))" 
+	    xygrid="set grid ytic xtic" 
+	    ;;
+	        
+	-logxy)
+	    lnx="set logscale x"
+	    lny="set logscale y"
+	    xygrid="set grid ytic xtic"
+	    x="(abs(\$1))"
+	    i=1
+	    while [ $i -le 9 ]
+	    do
+		j=$(( i+1 ))
+		Y[$i]="(abs(\$$j))"
+		i=$j
+	    done
+	    ;;
+
+	-expr)
+	    if [ $# = 2 ] && [ -f $2 ]
+	    then
+		echo -n "enter expression, example: y**2: "
+		read expr
+	    fi
+	    while [ $# = 3 ] && [ -f $3 ]
+	    do
+		if [[ $2 = -range  ]] || [[ $2 = -save ]]
+		then
+		    echo -n "enter expression, example: y**2: "
+		    read expr
+		fi
+		break
+	    done
+
+	    if [[ $expr != "" ]]
+		then
+		    i=1
+		     while [ $i -le 9 ]
+		     do
+			 j=$(( i+1 ))
+			 repl=${expr/y/(\$$j)}
+			 Y[$i]="($repl)"
+			 i=$j
+		     done
+	    fi
+	    ;;
+
+	-exprlogy)
+	    lny="set logscale y"
+	    xygrid="set grid ytic xtic"
+	    if [ $# = 2 ] && [ -f $2 ]
+	    then
+		echo -n "enter expression, example: y**2: "
+		read expr
+	    fi
+	    while [ $# = 3 ] && [ -f $3 ]
+	    do
+		if [[ $2 = -range  ]] || [[ $2 = -save ]]
+		then
+		    echo -n "enter expression, example: y**2: "
+		    read expr
+		fi
+		break
+	    done
+
+	    if [[ $expr != "" ]]
+		then
+		    i=1
+		     while [ $i -le 9 ]
+		     do
+			 j=$(( i+1 ))
+			 repl=${expr/y/abs(\$$j)}
+			 Y[$i]="($repl)"
+			 i=$j
+		     done
+	    else
+		i=1
+		while [ $i -le 9 ]
+		do
+		    j=$(( i+1 ))
+		    Y[$i]="(abs(\$$j))"
+		    i=$j
+		done
+	    fi
+	    ;;
+
+	-exprlogx)
+	    lny="set logscale x"
+	    xygrid="set grid ytic xtic"
+	    if [ $# = 2 ] && [ -f $2 ]
+	    then
+		echo -n "enter expression, example: y**2: "
+		read expr
+	    fi
+	    while [ $# = 3 ] && [ -f $3 ]
+	    do
+		if [[ $2 = -range  ]] || [[ $2 = -save ]]
+		then
+		    echo -n "enter expression, example: y**2: "
+		    read expr
+		fi
+		break
+	    done
+
+	    if [[ $expr != "" ]]
+		then
+		    i=1
+		     while [ $i -le 9 ]
+		     do
+			 j=$(( i+1 ))
+			 repl=${expr/y/(\$$j)}
+			 Y[$i]="($repl)"
+			 i=$j
+		     done
+	    fi
+	    ;;
+	    
+
+	-exprlogxy)
+	    lnx="set logscale x"
+	    lny="set logscale y"
+	    xygrid="set grid ytic xtic"
+	    x="(abs(\$1))" 
+	    if [ $# = 2 ] && [ -f $2 ]
+	    then
+		echo -n "enter expression, example: y**2: "
+		read expr
+	    fi
+	    while [ $# = 3 ] && [ -f $3 ]
+	    do
+		if [[ $2 = -range  ]] || [[ $2 = -save ]]
+		then
+		    echo -n "enter expression, example: y**2: "
+		    read expr
+		fi
+		break
+	    done
+
+	    if [[ $expr != "" ]]
+		then
+		    i=1
+		     while [ $i -le 9 ]
+		     do
+			 j=$(( i+1 ))
+			 repl=${expr/y/abs(\$$j)}
+			 Y[$i]="($repl)"
+			 i=$j
+		     done
+	    else
+		i=1
+		while [ $i -le 9 ]
+		do
+		    j=$(( i+1 ))
+		    Y[$i]="(abs(\$$j))"
+		    i=$j
+		done
+	    fi
+	    ;;
+	
+	-a*)
+	    echo "gplot $1: allowed options: -absx, -absy, -absxy"
+	    exit 
+	    ;;
+
+	-l*)
+	    echo "gplot $1: allowed options: -logx, -logy, -logxy"
+	    exit 
+	    ;;
+
+	-r*)
+	    echo "gplot $1: allowed options: -range"
+	    exit
+	    ;;
+
+	-s*)
+	    echo "gplot $1: allowed options: -save"
+	    exit
+	    ;;
+	
+	-e*)
+	    echo "gplot $1: allowed options: -expr, -exprlogy, -exprlogx, -exprlogxy"
+	    exit
+	    ;;
+
+       	*)  
+	    echo "gplot $1: invalid option $1"
+	    exit 
+	    ;;
+    esac
+    
+    case $2 in
+
+	-save)
+	    saveswitch="save"
+	    if [ $# -ge 3 ] && [ -f "$3" ]
+	    then
+		lmargin=7.5
+		rmargin=4.8
+		tmargin=1.8
+		bmargin=3.2
+		
+
+		filein=$3
+		file=${filein%.*}
+		fileout=$file.eps
+
+		echo -n "gplot: enter range as [xmin:xmax] [ymin:ymax], use [:] or press enter to autoscale both xy: "
+		read xr yr
+
+		echo -n "gplot: smooth data, enter c for csplines, or b for bezier: "
+		read smooth
+		if [[ $smooth = c* ]]
+		then
+		    smooth="smooth csplines"
+		elif [[ $smooth = b* ]]
+		then
+		    smooth="smooth bezier"
+		else
+		    smooth=""
+		fi
+
+		echo -n "gplot: enter '{xlabel}' '{ylabel}' '{y2label}': "
+		read xlabel ylabel y2label
+		echo -n "gplot: enter xoffset yoffset -- 'x1,x2' 'y1,y2': "
+		read xoffset yoffset
+		
+		echo -n "gplot: enter '{y1title}' '{y2title}' ... '{yntitle}': "
+		read ytitle1 ytitle2 ytitle3 ytitle4 ytitle5 ytitle6 ytitle7 ytitle8 ytitle9 
+		ytitle=("$ytitle1" "$ytitle2" "$ytitle3" "$ytitle4" "$ytitle5" "$ytitle6" "$ytitle7" "$ytitle8" "$ytitle9")
+		if [[ ${ytitle[0]} = "" ]]
+		    then
+		    linetypestring1="set label 'line types:' at screen 0.21,0.845"
+		    linetypestring2="set label '(S/D/DD)  >' at screen 0.375,0.845 tc ls 2"
+		    linetypestring3="set label '(S/D/DD)  >' at screen 0.57,0.845 tc ls 5"
+		    linetypestring4="set label '(S/D/DD)' at screen 0.770,0.845 tc ls 8"
+		    else
+		    i=1
+		    while [ $i -le 9 ]
+		    do
+			if [[ ${ytitle[$((i-1))]} != "" ]]
+			then
+			    linetypestring1=""
+			    linetypestring2=""
+			    linetypestring3=""
+			    linetypestring4=""
+			    ylegend[$i]="title ${ytitle[$((i-1))]}"
+			    j=$(( i+1 ))
+			    i=$j
+			else
+			    ylegend[$i]="notitle"
+			    j=$(( i+1 ))
+			    i=$j
+			fi
+		    done
+		fi
+
+		echo -n "gplot: legend position tl/tr/lb/rb: "
+		read key
+		while [[ $key != "" ]]
+		do
+		    if [[ $key = tl ]]
+		    then
+			key="top left"
+			break
+		    elif [[ $key = tr ]]
+		    then
+			key="top right"
+			break
+		    elif [[ $key = lb ]]
+		    then
+			key="left bottom"
+			break
+		    elif [[ $key = rb ]]
+		    then
+			key="right bottom"
+			break
+		    else
+			key=""
+			break
+		    fi
+		done
+		legendposition=$key
+		  
+		if [[ $xoffset = "" ]]
+		    then
+		    xoffset=0,0.5
+		fi
+		if [[ $yoffset = "" ]]
+		    then
+		    yoffset=1.5
+		fi
+		break
+	    elif [[ $# -lt 3 ]]
+	    then
+		echo "gplot: missing data file name"
+		exit
+	    else
+		echo "gplot: data file $3 does not exist"
+		exit
+	    fi
+	    ;;
+
+	-range)
+	    if [ $# -ge 3 ] && [ -f "$3" ]
+	    then
+		filein=$3
+		file=${filein%.*}
+		fileout=$file.eps
+		echo -n "gplot: enter range as [xmin:xmax] [ymin:ymax], use [:] or press enter to autoscale both xy: "
+		read xr yr
+		break
+	    elif [[ $# -lt 3 ]]
+	    then
+		echo "gplot: missing data file name"
+		exit
+	    else
+		echo "gplot: data file $3 does not exist"
+		exit
+	    fi
+	    ;;
+
+	-r*)
+	    echo "gplot $2: allowed options: -range"
+	    exit
+	    ;;
+
+	-s*)
+	    echo "gplot $2: allowed options: -save"
+	    exit
+	    ;;
+
+       		
+	-*) 
+	    echo "gplot $1 $2: invalid option $2"
+	    exit
+	    ;;
+
+	*)
+	    if [ $# -ge 2 ] && [ -f "$2" ]
+	    then
+		filein=$2
+		file=${filein%.*}
+		fileout=$file.eps
+		break
+	    elif [[ $# -lt 2 ]]
+	    then
+		echo "gplot: missing data file name"
+		exit
+	    else
+		echo "gplot: data file $2 does not exist"
+		exit
+	    fi 
+	    
+    esac
+    
+done
+
+gnuplot  2>/dev/null << EOF #
+
+                                                #### preamble ####
+#### Initializing parameters so that it resembles with xmgrace when included in latex document ####
+
+
+                                           # set the terminal #
+# dl specifies the dash length, very important         
+# The font size is set to 25 to take care of plot legends
+set term postscript eps enhanced color dl 3 'Times-Roman'25 
+
+
+
+                           # line styles to be used for plots, frame box, and legend box #
+set style line 1 lt 1 lc rgb 'black' lw 4 # frame box
+# following are the options for most legible dot-dashed line types, change color as suits #
+set style line 2 lt 1 lc rgb 'blue'  lw 3 # solid
+set style line 3 lt 2 lc rgb 'blue'  lw 3 # dashed
+set style line 4 lt 5 lc rgb 'blue'  lw 3 # dot-dashed
+set style line 5 lt 1 lc rgb 'black' lw 3 # solid
+set style line 6 lt 2 lc rgb 'black' lw 3 # dashed
+set style line 7 lt 5 lc rgb 'black' lw 3 # dot-dashed
+set style line 8 lt 1 lc rgb 'red' lw 3 # solid
+set style line 9 lt 2 lc rgb 'red' lw 3 # dashed
+set style line 10 lt 5 lc rgb 'red' lw 3 # dot-dashed
+
+
+                          # line style label
+#set label 'line types:' at screen 0.19,0.825
+#set label '(S/D/DD)  >' at screen 0.355,0.825 tc ls 2
+#set label '(S/D/DD)  >' at screen 0.55,0.825 tc ls 5
+#set label '(S/D/DD)' at screen 0.750,0.825 tc ls 8
+$linetypestring1
+$linetypestring2
+$linetypestring3
+$linetypestring4
+
+
+                              # frame box style and graph aspect ratio #
+set border ls 1      # frame border
+set size 1.1,0.9     # graph aspect ratio
+set lmargin $lmargin      # set the left margin offset for the graph
+set rmargin $rmargin      # set the right margin offset for the graph
+set tmargin $tmargin      # set the top margin offset for the graph
+set bmargin $bmargin      # set the bottom margin offset for the graph
+
+
+
+                                     # plot legend, a good font size is 25 #
+set key $legendposition
+
+
+
+
+                              # sampling and output filein #
+set samples 1000            # set it to about 10 if plotting with linespoints for functions
+set output '$fileout'   # name of eps output filein, change from preamble
+
+
+
+
+                                # axis properties #
+$lnx
+$lny
+$xygrid
+set xlabel $xlabel font 'Times-Roman,28' offset $xoffset 
+set ylabel $ylabel font 'Times-Roman,28' offset $yoffset 
+set y2label $y2label 
+set xrange $xr
+set yrange $yr
+set xtic auto scale 1.5,0.75 font 'Times-Roman,25' offset 0,0.3 
+set ytic auto scale 1.5,0.75 font 'Times-Roman,25' offset 0.5
+set mxtics 2
+set mytics 2
+
+
+                                         #### end of preamble ####
+plot  '$filein' using 1:${Y[1]} $smooth with lines ls 2 ${ylegend[1]},\
+      '$filein' using 1:${Y[2]} $smooth with lines ls 3 ${ylegend[2]},\
+      '$filein' using 1:${Y[3]} $smooth with lines ls 4 ${ylegend[3]},\
+      '$filein' using 1:${Y[4]} $smooth with lines ls 5 ${ylegend[4]},\
+      '$filein' using 1:${Y[5]} $smooth with lines ls 6 ${ylegend[5]},\
+      '$filein' using 1:${Y[6]} $smooth with lines ls 7 ${ylegend[6]},\
+      '$filein' using 1:${Y[7]} $smooth with lines ls 8 ${ylegend[7]},\
+      '$filein' using 1:${Y[8]} $smooth with lines ls 9 ${ylegend[8]},\
+      '$filein' using 1:${Y[9]} $smooth with lines ls 10 ${ylegend[9]}
+
+EOF
+
+mkdir tmp
+mv $fileout tmp
+cd tmp 1>/dev/null
+epstopdf $fileout
+filepdf=$file.pdf
+mv $filepdf ..
+cd ..
+if [[ $saveswitch != "save" ]]
+then
+    okular $filepdf 2>/dev/null 
+    rm $filepdf
+    else
+    pdfcrop $filepdf
+    mv ${file%.pdf}-crop.pdf $filepdf
+    okular $filepdf 2>/dev/null 
+fi
+rm -r tmp
+
+	

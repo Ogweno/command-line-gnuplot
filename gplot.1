@@ -1,0 +1,70 @@
+.TH gplot 1 "13 NOV 2013" "version 1"
+.SH NAME
+gplot - a command line plotting tool for text data files
+.SH SYNOPSIS
+gplot [ options ] [ filename ]
+.SH DESCRIPTION
+gplot is a command-line plotting tool which uses gnuplot for plotting text data files of the type X,Y1,Y2,...Yn. The data has to be in the form of separate columns, and not comma separated. Any comment line has to begin with '#'. It only plots the first nine Y columns for n>9 with different lines. It is not for scatter plots. The output plot is a PDF file. 
+.B gplot
+uses okular to display the PDF file.  The default option is designed for quick plotting so as to get a feel for the data file, and as such, the output PDF file is automatically deleted after exiting the command. If it is desired to save the file, use the 
+.B -save
+option instead. 
+.SH OPTIONS
+.TP
+.BI -save " filename"
+auto saves the output pdf file after exit. For data file filename.*, it saves the PDF file as filename.pdf. It uses the option
+.B -range
+and prompts for plot range. In addition, it provides the option to smooth y data using either csplines or bezier, enter axes labels (in gnuplot format), individual plot titles (in gnuplot format) and the option to move the legend to the top left (tl), top right (tr), left bottom (lb) and right bottom (rb) positions. The user can skip all these options by pressing 
+.B ENTER
+after every prompt, in which case default options will be used.
+.TP
+.BI -range " filename"
+provide plot range in the format [xmin:xmax] [ymin:ymax], including the square braces. Using [:] for [xmin:xmax] will autoscale the x-axis and similar for y-axis. Thus, a combination of [:] and numeric entries may be used to selectively autoscale or manually scale one or the other axis. Simply pressing 
+.B ENTER 
+without entering any plot range or a wrong entry will automatically assume autoscale for both axes. Note, 
+.B -range
+option is intended for quick plot range changes, and it does not allow to save the output file and cannot be used along with 
+.B -save 
+option. If it is desired to save the output PDF, use 
+.B -save
+option, which automatically allows to manually enter the plot range.
+.TP
+.BI -absy " -range|-save"
+plots abs(y) vs x. 
+.TP
+.BI -absx " -range|-save"
+plots y vs abs(x). 
+.TP
+.BI -absxy " -range|-save"
+plots abs(y) vs abs(x)
+.TP
+.BI -logy " -range|-save"
+plots abs(y) vs x with logarithmic scaling for y-axis. 
+.TP
+.BI -logx " -range|-save"
+plots y vs abs(x) with logarithmic scaling for x-axis. 
+.TP
+.BI -logxy " -range|-save"
+plots abs(y) vs abs(x) with logarithmic scaling for both x and y axes.
+.TP
+.BI -expr " -range|-save"
+plots expr(y) vs x, where expr(y) is any mathematical expression involving y data. For example, if the user wants to plot the square of y data values vs x, at the command prompt, enter y**2. This mathematical expression will be applied to all y data columns. All standard mathematical expressions available in gnuplot can be used.
+.TP
+.BI -exprlogy " -range|-save"
+plots absolute value of expr(y) vs x with logarithmic scaling for y-axis.
+.TP
+.BI -exprlogx " -range|-save"
+plots expr(y) vs abs(x) with logarithmic scaling for x-axis.
+.TP
+.BI -exprlogxy " -range|-save"
+plots absolute value of expr(y) vs abs(x) with logarithmic scaling for both x and y axes.
+.SH FILES
+gplot looks for files in the working directory. Files with absolute or relative pathnames are not admitted so far. If no filename or a non-existing filename is provided,
+.B gplot
+prompts an error message. If by mistake, a file not in the X,Y1,...Yn format is used and the file exists, okular prompts an error message. The file can also contain comment lines starting with #, which is a standard gnuplot feature.
+.SH AUTHOR
+Saurabh Paul
+
+
+
+
