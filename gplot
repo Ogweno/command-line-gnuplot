@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# gnuplot plotting options
+# ---------------------------------------------
 xr=[:]
 yr=[:]
 
@@ -44,7 +46,12 @@ linetypestring3="set label '{/Times-Roman=25 (S/D/DD)  >}' at screen 0.55,0.825 
 linetypestring4="set label '{/Times-Roman=25 (S/D/DD)}' at screen 0.750,0.825 tc ls 8"
 
 smooth=""
+# --------------------------------------------- gnuplot options
 
+
+# command line plot options and file name
+# shell script part
+# --------------------------------------------------------
 while [[ $1 != -* ]]
 do
     if [[ $# -ge 1 ]] && [ -f "$1" ]
@@ -599,7 +606,11 @@ fi
     esac
     
 done
+# -------------------------------------------------- command line options
 
+
+# gnuplot commands
+# ---------------------------------------------------------
 gnuplot  2>/dev/null << EOF #
 
                                                 #### preamble ####
@@ -688,7 +699,11 @@ plot  '$filein' using 1:${Y[1]} $smooth with lines ls 2 ${ylegend[1]},\
       '$filein' using 1:${Y[9]} $smooth with lines ls 10 ${ylegend[9]}
 
 EOF
+# ---------------------------------------------------- gnuplot
 
+
+# view pdf using evince or save plotted file
+# --------------------------------------------------------
 mkdir tmp
 mv $fileout tmp
 cd tmp 1>/dev/null
@@ -706,5 +721,5 @@ then
     evince $filepdf 2>/dev/null 
 fi
 rm -r tmp
-
+# --------------------------------------------- pdf
 	
